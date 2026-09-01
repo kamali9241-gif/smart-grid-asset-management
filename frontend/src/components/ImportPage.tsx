@@ -140,6 +140,7 @@ function ImportResultsView({ report, onExplore }: { report: ImportReport; onExpl
               <th scope="col">Asset ID</th>
               <th scope="col">Field</th>
               <th scope="col">Reason</th>
+              <th scope="col">Original CSV row</th>
             </tr>
           </thead>
           <tbody>
@@ -149,6 +150,9 @@ function ImportResultsView({ report, onExplore }: { report: ImportReport; onExpl
                 <td>{r.assetId || '—'}</td>
                 <td>{r.field || '—'}</td>
                 <td>{r.message}</td>
+                <td>
+                  <code className="raw-row">{r.rawRow || '—'}</code>
+                </td>
               </tr>
             ))}
           </tbody>

@@ -72,5 +72,31 @@ export function uploadImport(file: File, mode: ImportMode): Promise<ImportReport
   const form = new FormData()
   form.append('file', file)
   form.append('mode', mode)
-  return request('/imports', { method: 'POST', body: form })
+  // 201 (committed) and 422 (validated but rolled back) both carry a full
+  // ImportReport body — 422 is not a transport error here, it's the API's
+  // way of saying "the file was processed, nothing was written", so it must
+  // not be swallowed by the generic error handling in `request`.
+  return uploadRequest('/imports', { method: 'POST', body: form })
+}
+
+async function uploadRequest(path: string, init: RequestInit): Promise<ImportReport> {
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}${path}`, init)
+  } catch {
+    throw new ApiError(0, 'network_error', 'Could not reach the server. Check your connection and try again.')
+  }
+  if (res.status !== 201 && res.status !== 422) {
+    let code = 'unknown_error'
+    let message = `Request failed with status ${res.status}`
+    try {
+      const body = await res.json()
+      code = body?.error?.code ?? code
+      message = body?.error?.message ?? message
+    } catch {
+      // response was not JSON; fall back to the generic message
+    }
+    throw new ApiError(res.status, code, message)
+  }
+  return (await res.json()) as ImportReport
 }

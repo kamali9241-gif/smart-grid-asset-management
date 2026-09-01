@@ -51,6 +51,13 @@ describe('api client', () => {
     expect(init.body).toBeInstanceOf(FormData)
   })
 
+  it('treats a 422 import response as a valid report, not an error', async () => {
+    const report = { committed: false, totalRows: 222, importedRows: 0, rejectedRows: 17, rejections: [] }
+    mockFetchOnce(422, report)
+    const file = new File(['a,b'], 'assets.csv', { type: 'text/csv' })
+    await expect(uploadImport(file, 'all_or_nothing')).resolves.toEqual(report)
+  })
+
   it('wraps network failures in an ApiError', async () => {
     global.fetch = vi.fn().mockRejectedValue(new Error('offline')) as unknown as typeof fetch
     await expect(getAsset('SUB-1')).rejects.toBeInstanceOf(ApiError)
