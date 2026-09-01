@@ -126,6 +126,9 @@ reason.
 
 ## API overview
 
+Full request/response schemas, status codes and examples are in
+[API.md](API.md). Quick summary:
+
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/api/health` | Liveness + DB connectivity + asset count |
