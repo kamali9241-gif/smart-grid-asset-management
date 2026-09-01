@@ -20,12 +20,19 @@
 
 ## Infrastructure / verification
 
-- The containerized stack (`docker-compose.yml`) was authored and the
-  backend/frontend were each built and unit-tested independently, but a
-  full `docker compose up` run had not yet been verified end-to-end at the
-  time of writing because Docker Desktop was mid-install/being switched to
-  Linux container mode on the development machine. Update this note once
-  that run has been confirmed.
+- Verified end-to-end via `docker compose up --build`: all three containers
+  (`postgres`, `backend`, `frontend`) start healthy, migrations apply
+  automatically, `grid_assets.csv` was uploaded through the running UI at
+  `http://localhost:8081`, and the explorer/search/deep-link flows were
+  exercised against the resulting data (see the 17 intentionally-invalid rows
+  below).
+- The supplied `grid_assets.csv` contains 17 rows that intentionally violate
+  validation rules (cycles, wrong parent type, unsupported enums, negative
+  rating, missing/self parent, etc.) to exercise every rule in
+  `importer.Validate`. Uploading it in `all_or_nothing` mode therefore rolls
+  back with 17 reported rejections and 0 committed rows, by design; use
+  `partial` mode (205 rows accepted, 17 rejected) to populate the explorer
+  with the valid subtree.
 - No CI pipeline (e.g. GitHub Actions) is included; tests are run locally via
   `go test ./...` and `npm run test`.
 - No cloud deployment is included (explicitly a bonus, not required).

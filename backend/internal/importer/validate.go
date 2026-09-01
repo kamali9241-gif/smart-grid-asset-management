@@ -54,7 +54,15 @@ type ExistingAsset struct {
 	AssetType string
 }
 
-var dateLayouts = []string{"2006-01-02", "2006/01/02", "02/01/2006", "02-01-2006", time.RFC3339}
+// dateLayouts covers ISO-8601 plus the day/month upstream extract formats
+// seen in practice, including non-zero-padded day/month and 2-digit years
+// (e.g. "15/2/09").
+var dateLayouts = []string{
+	"2006-01-02", "2006/01/02",
+	"02/01/2006", "02-01-2006",
+	"2/1/2006", "2/1/06",
+	time.RFC3339,
+}
 
 type candidate struct {
 	row    RawRow

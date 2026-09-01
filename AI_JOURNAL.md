@@ -75,6 +75,19 @@ running `npm install`, `npm run test` and `npm run build` afterwards.
   constraint trigger genuinely allows children-before-parents insert order
   (the assignment's core "row order must not determine validity"
   requirement) rather than assuming it from the code alone.
+- **Real end-to-end run**: once Docker Desktop was available, ran
+  `docker compose up --build` and uploaded the actual `grid_assets.csv`
+  through the running UI rather than only trusting unit tests. This
+  immediately surfaced a bug unit tests had missed: the file's
+  `commissioned_date` values use non-zero-padded day/month with 2-digit
+  years (e.g. `15/2/09`), a format `dateLayouts` didn't cover, so every row
+  was rejected on first attempt. Fixed by adding `2/1/2006` and `2/1/06`
+  layouts, then re-ran the same upload to confirm all genuinely-valid rows
+  passed. The dataset also turned out to contain 17 rows that are
+  *intentionally* invalid (cycles, wrong hierarchy, bad enums, negative
+  rating, missing parent) to exercise the validator — confirmed each
+  rejection message against the specific row before concluding the importer,
+  not the data, was correct.
 
 ## Where the agent did poorly / needed more context
 
@@ -96,6 +109,16 @@ running `npm install`, `npm run test` and `npm run build` afterwards.
   migration (`0002_asset_equipment_details.sql`) plus matching changes to
   `domain.Asset`, the importer's column aliases, the repository, and the
   frontend details panel.
+- A later automated edit to that same migration file silently replaced the
+  correct PostgreSQL syntax (`ADD COLUMN IF NOT EXISTS ...`) with
+  MySQL/Oracle-style `ADD (...)`, which Postgres rejects outright. Caught by
+  re-running `go build`/`go test` and diffing the working tree against the
+  last commit before trusting the file again — a reminder to always re-diff
+  files flagged as "changed since last request" rather than assuming
+  external edits are equivalent or improvements.
+- The date-format gap above only surfaced by running the real file through a
+  real database; the importer's unit tests used ISO dates in their fixtures
+  and so gave false confidence on this specific rule.
 
 ## Approximate human working time
 
