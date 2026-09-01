@@ -5,6 +5,13 @@
 - **GitHub Copilot** in agent mode, VS Code, using **Claude Sonnet 5** as the
   underlying model for both the backend implementation and this session's
   frontend/infrastructure/documentation work.
+- The VS Code model picker was left on "Auto" for parts of this project,
+  which can route individual requests to different underlying models rather
+  than guaranteeing a single fixed one. Claude Sonnet 5 is what this session
+  identifies as and is the model documented here; it proved sufficient for
+  the full scope of this assignment (backend, frontend, infra, docs,
+  debugging real issues against a live Postgres instance), so no model
+  switch was required during development.
 
 ## How the work was decomposed and sequenced
 
