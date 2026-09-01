@@ -1,0 +1,13 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+
+# Backend
+backend/tmp/
+backend/*.env
+backend/.env
+
+# Frontend (node_modules etc. already ignored inside frontend/.gitignore)
+
+# Docker
+*.local
